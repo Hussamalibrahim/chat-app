@@ -1,0 +1,1324 @@
+{
+  "info": {
+    "_postman_id": "eada04bc-a5a3-45bd-ae6f-f016a261f544",
+    "name": "Chat Application Backend API",
+    "description": "Complete Postman collection for Reactive Chat Application Backend (Java 21, Spring Boot WebFlux, R2DBC, Kafka, Prometheus).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "01. Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.id) {",
+                  "        pm.collectionVariables.set('user_id', json.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"hussam\",\n  \"email\": \"hussam@example.com\",\n  \"phone\": \"+1234567890\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/auth/register",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.accessToken) {",
+                  "        pm.collectionVariables.set('token', json.accessToken);",
+                  "    }",
+                  "    if (json.refreshToken) {",
+                  "        pm.collectionVariables.set('refresh_token', json.refreshToken);",
+                  "    }",
+                  "    if (json.user && json.user.id) {",
+                  "        pm.collectionVariables.set('user_id', json.user.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"hussam\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/auth/login",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.accessToken) {",
+                  "        pm.collectionVariables.set('token', json.accessToken);",
+                  "    }",
+                  "    if (json.refreshToken) {",
+                  "        pm.collectionVariables.set('refresh_token', json.refreshToken);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/auth/refresh",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "auth", "refresh"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout (Single Device)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/auth/logout",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout All Devices",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/auth/logout-all",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "auth", "logout-all"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02. Users",
+      "item": [
+        {
+          "name": "Get Current User Profile (/me)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/users/me",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "users", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Username",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/users/me?username=hussam_updated",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "users", "me"],
+              "query": [
+                {
+                  "key": "username",
+                  "value": "hussam_updated"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Contact Info (Email / Phone)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/users/me/contact?email=hussam.new@example.com&phone=+1987654321",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "users", "me", "contact"],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "hussam.new@example.com"
+                },
+                {
+                  "key": "phone",
+                  "value": "+1987654321"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"Password123!\",\n  \"newPassword\": \"NewPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/users/me/password",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "users", "me", "password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/users/search?query=hussam",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "users", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "hussam"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Find User by Criteria",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/users/find?username=hussam",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "users", "find"],
+              "query": [
+                {
+                  "key": "username",
+                  "value": "hussam"
+                },
+                {
+                  "key": "id",
+                  "value": "{{user_id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "email",
+                  "value": "hussam@example.com",
+                  "disabled": true
+                },
+                {
+                  "key": "phone",
+                  "value": "+1234567890",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Account (Soft Delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/users/me",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "users", "me"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03. Chats & Groups",
+      "item": [
+        {
+          "name": "List User Chats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/chats",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "chats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Chat Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/chats/{{chat_id}}",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "chats", "{{chat_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Direct Chat",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.chatRoomId) {",
+                  "        pm.collectionVariables.set('chat_id', json.chatRoomId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"{{user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/chats/direct",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "chats", "direct"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Group Chat",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.chatRoomId) {",
+                  "        pm.collectionVariables.set('chat_id', json.chatRoomId);",
+                  "        pm.collectionVariables.set('group_id', json.chatRoomId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Engineering Team\",\n  \"description\": \"Group for project discussions\",\n  \"memberIds\": []\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/chats/groups",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "chats", "groups"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Group Chat (Name)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Engineering Core Team\"\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/chats/groups/{{group_id}}",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "chats", "groups", "{{group_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Group Members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/chats/{{chat_id}}/members",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "chats", "{{chat_id}}", "members"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Member to Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/chats/{{chat_id}}/members",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "chats", "{{chat_id}}", "members"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Member Role (MEMBER / ADMIN)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"ADMIN\"\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/chats/{{chat_id}}/members/{{user_id}}/role",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "chats", "{{chat_id}}", "members", "{{user_id}}", "role"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Member from Group",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/chats/{{chat_id}}/members/{{user_id}}",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "chats", "{{chat_id}}", "members", "{{user_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Leave Group",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/chats/{{chat_id}}/leave",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "chats", "{{chat_id}}", "leave"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04. Messages & Attachments",
+      "item": [
+        {
+          "name": "Send Message",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.id) {",
+                  "        pm.collectionVariables.set('message_id', json.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"messageType\": \"TEXT\",\n  \"content\": \"Hello! This is a real-time reactive message.\"\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/chats/{{chat_id}}/messages",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "chats", "{{chat_id}}", "messages"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Conversation Messages (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/chats/{{chat_id}}/messages?page=0&size=50",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "chats", "{{chat_id}}", "messages"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "50"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Edit Message",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Updated message content.\"\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/messages/{{message_id}}",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "messages", "{{message_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Message (Soft Delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/messages/{{message_id}}",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "messages", "{{message_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Message as Read",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/messages/{{message_id}}/read",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "messages", "{{message_id}}", "read"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Message Attachment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/messages/{{message_id}}/attachments",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "messages", "{{message_id}}", "attachments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Message Attachments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/messages/{{message_id}}/attachments",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "messages", "{{message_id}}", "attachments"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05. Message Requests",
+      "item": [
+        {
+          "name": "Send Message Request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.id) {",
+                  "        pm.collectionVariables.set('request_id', json.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetUserId\": \"{{user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/message-requests",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "message-requests"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pending Message Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/message-requests/pending",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "message-requests", "pending"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Accept Message Request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/message-requests/{{request_id}}/accept",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "message-requests", "{{request_id}}", "accept"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Decline Message Request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/message-requests/{{request_id}}/decline",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "message-requests", "{{request_id}}", "decline"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06. Contacts",
+      "item": [
+        {
+          "name": "List Contacts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/contacts",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "contacts"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Contact (JSON Body)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contactUserId\": \"{{user_id}}\",\n  \"alias\": \"Colleague\"\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/contacts",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "contacts"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Contact by Path (/contacts/{userId})",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/contacts/{{user_id}}?alias=Best Friend",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "contacts", "{{user_id}}"],
+              "query": [
+                {
+                  "key": "alias",
+                  "value": "Best Friend"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Contacts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/contacts/search?query=alice",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "contacts", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "alice"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Contact",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/contacts/{{user_id}}",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "contacts", "{{user_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "07. Group Invitations",
+      "item": [
+        {
+          "name": "Invite User to Group",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.id) {",
+                  "        pm.collectionVariables.set('invitation_id', json.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inviteeId\": \"{{user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/groups/{{group_id}}/invitations",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "groups", "{{group_id}}", "invitations"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pending Group Invitations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/groups/invitations",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "groups", "invitations"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Accept Group Invitation",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/groups/invitations/{{invitation_id}}/accept",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "groups", "invitations", "{{invitation_id}}", "accept"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Decline Group Invitation",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/groups/invitations/{{invitation_id}}/decline",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "groups", "invitations", "{{invitation_id}}", "decline"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "08. Privacy & Blocks",
+      "item": [
+        {
+          "name": "Get Privacy Settings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/privacy/settings",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "privacy", "settings"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Privacy Settings",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"whoCanMessage\": \"CONTACTS\",\n  \"whoCanAddToGroups\": \"CONTACTS\"\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/privacy/settings",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "privacy", "settings"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Block User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/privacy/blocks/{{user_id}}",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "privacy", "blocks", "{{user_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unblock User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/privacy/blocks/{{user_id}}",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "privacy", "blocks", "{{user_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Blocked Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/privacy/blocks",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "privacy", "blocks"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "09. User Reports",
+      "item": [
+        {
+          "name": "Submit Abuse Report",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.id) {",
+                  "        pm.collectionVariables.set('report_id', json.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reportedUserId\": \"{{user_id}}\",\n  \"messageId\": \"{{message_id}}\",\n  \"reason\": \"SPAM\",\n  \"details\": \"Sending unsolicited commercial messages.\"\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/reports",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "reports"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "10. Administration (ROLE_ADMIN)",
+      "item": [
+        {
+          "name": "Get Dashboard Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/admin/dashboard",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "admin", "dashboard"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Platform Users (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/admin/users?page=0&size=20",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "admin", "users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Users Across Platform",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/admin/users/search?query=hussam",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "admin", "users", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "hussam"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Details (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/admin/users/{{user_id}}",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "admin", "users", "{{user_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Suspend or Unsuspend User",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/admin/users/{{user_id}}/suspend?suspend=true",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "admin", "users", "{{user_id}}", "suspend"],
+              "query": [
+                {
+                  "key": "suspend",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Abuse Reports (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/admin/reports?page=0&size=20",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "admin", "reports"],
+              "query": [
+                {
+                  "key": "reason",
+                  "value": "SPAM",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Abuse Report Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/api/v1/admin/reports/{{report_id}}",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "admin", "reports", "{{report_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Review Report & Record Decision",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"USER_SUSPENDED\",\n  \"adminNotes\": \"User confirmed spamming members. Suspended for 7 days.\"\n}"
+            },
+            "url": {
+              "raw": "{{base-url}}/api/v1/admin/reports/{{report_id}}/review",
+              "host": ["{{base-url}}"],
+              "path": ["api", "v1", "admin", "reports", "{{report_id}}", "review"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "11. Actuator & Observability",
+      "item": [
+        {
+          "name": "Health Status",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/actuator/health",
+              "host": ["{{base-url}}"],
+              "path": ["actuator", "health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Prometheus Metrics",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base-url}}/actuator/prometheus",
+              "host": ["{{base-url}}"],
+              "path": ["actuator", "prometheus"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base-url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "chat_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "group_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "message_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "request_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "invitation_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "report_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
